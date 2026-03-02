@@ -52,30 +52,30 @@ const Guide: React.FC<GuideProps> = ({ onBack }) => {
         
         <div className="bg-white p-4 rounded-xl border-4 border-black cartoon-shadow">
             <h4 className="font-bold text-lg mb-2 text-center text-black">📅 Calendario de Eliminación</h4>
-            <p className="text-xs font-bold text-center text-gray-500 mb-2">Comienza cada Martes</p>
+            <p className="text-xs font-bold text-center text-gray-500 mb-2">Comienza cada Lunes</p>
             <div className="space-y-2 text-sm text-black">
                 <div className="flex justify-between items-center border-b border-gray-100 pb-1">
-                    <span className="font-bold text-black">Martes (Día 1)</span>
+                    <span className="font-bold text-black">Lunes (Día 1)</span>
                     <span className="text-xs bg-gray-200 px-2 py-1 rounded">Todos Juegan</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-gray-100 pb-1">
-                    <span className="font-bold text-black">Miércoles (Día 2)</span>
+                    <span className="font-bold text-black">Martes (Día 2)</span>
                     <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded font-black">30% Eliminado</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-gray-100 pb-1">
-                    <span className="font-bold text-black">Jueves (Día 3)</span>
+                    <span className="font-bold text-black">Miércoles (Día 3)</span>
                     <span className="text-xs bg-yellow-100 text-yellow-700 px-2 py-1 rounded font-black">40% Eliminado</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-gray-100 pb-1">
-                    <span className="font-bold text-black">Viernes (Día 4)</span>
+                    <span className="font-bold text-black">Jueves (Día 4)</span>
                     <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded font-black">50% Eliminado</span>
                 </div>
                 <div className="flex justify-between items-center border-b border-gray-100 pb-1">
-                    <span className="font-bold text-black">Sáb-Lun (Días 5-7)</span>
+                    <span className="font-bold text-black">Vie-Dom (Días 5-7)</span>
                     <span className="text-xs bg-red-100 text-red-700 px-2 py-1 rounded font-black">60% Eliminado</span>
                 </div>
                 <div className="flex justify-between items-center pt-1 bg-yellow-50 rounded px-2 py-1 mt-2">
-                    <span className="font-black text-purple-600">Lunes (Final)</span>
+                    <span className="font-black text-purple-600">Domingo (Final)</span>
                     <span className="text-xs font-black text-purple-600">¡Solo 1 Ganador!</span>
                 </div>
             </div>
@@ -150,16 +150,16 @@ const Guide: React.FC<GuideProps> = ({ onBack }) => {
 
         <div className="bg-white p-4 rounded-xl border-4 border-black cartoon-shadow">
              <h4 className="font-bold text-lg mb-2 flex items-center gap-2 text-black">
-                 <Users size={20} className="text-blue-600"/> Fase 1: Grupos (Mar-Mié)
+                 <Users size={20} className="text-blue-600"/> Fase 1: Inscripción (Lunes)
              </h4>
              <p className="text-sm text-black mb-2">
-                 Los jugadores compiten durante <strong>2 Días</strong> (Martes y Miércoles) en 8 Grupos.
+                 Los jugadores se registran jugando una partida el <strong>Lunes</strong>.
              </p>
              <div className="bg-red-100 p-2 rounded border-l-4 border-red-500 text-xs font-bold text-red-800 mb-2">
-                 ¡Importante! Debes jugar al menos una vez durante estos días para entrar. Si no participas, quedas fuera hasta la siguiente semana.
+                 ¡Importante! Debes jugar al menos una vez el Lunes para entrar. Si no participas, quedas fuera hasta la siguiente semana.
              </div>
              <div className="bg-gray-100 p-2 rounded border-l-4 border-green-500 text-xs font-bold text-black">
-                 Los 4 mejores de cada grupo el Miércoles por la noche se clasifican. ¡Intentos ilimitados!
+                 El Martes, los inscritos se dividen en 8 Grupos. Los 4 mejores de cada grupo el Martes por la noche se clasifican.
              </div>
         </div>
 
@@ -172,23 +172,23 @@ const Guide: React.FC<GuideProps> = ({ onBack }) => {
              </p>
              <ul className="space-y-2 text-xs font-semibold text-black">
                  <li className="flex justify-between border-b border-gray-100 pb-1">
-                     <span>Jueves</span>
+                     <span>Miércoles</span>
                      <span className="font-black text-blue-900">Dieciseisavos (R32)</span>
                  </li>
                  <li className="flex justify-between border-b border-gray-100 pb-1">
-                     <span>Viernes</span>
+                     <span>Jueves</span>
                      <span className="font-black text-blue-800">Octavos de Final (R16)</span>
                  </li>
                  <li className="flex justify-between border-b border-gray-100 pb-1">
-                     <span>Sábado</span>
+                     <span>Viernes</span>
                      <span className="font-black text-blue-700">Cuartos de Final (QF)</span>
                  </li>
                  <li className="flex justify-between border-b border-gray-100 pb-1">
-                     <span>Domingo</span>
+                     <span>Sábado</span>
                      <span className="font-black text-blue-600">Semifinales (SF)</span>
                  </li>
                  <li className="flex justify-between pt-1">
-                     <span>Lunes</span>
+                     <span>Domingo</span>
                      <span className="font-black text-yellow-600 bg-yellow-50 px-2 rounded">GRAN FINAL</span>
                  </li>
              </ul>

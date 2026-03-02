@@ -30,28 +30,27 @@ const ChampionsLeague: React.FC<ChampionsLeagueProps> = ({ user, onPlay, onBack 
     const jsDay = now.getDay(); // 0=Sun... 5=Fri
     
     // New Schedule: 
-    // Fri (5) -> Groups Day 1
-    // Sat (6) -> Groups Day 2
-    // Sun (0) -> R32
-    // Mon (1) -> R16
-    // Tue (2) -> QF
-    // Wed (3) -> SF
-    // Thu (4) -> FINAL
+    // Mon (1) -> Registration
+    // Tue (2) -> Groups
+    // Wed (3) -> R32
+    // Thu (4) -> R16
+    // Fri (5) -> QF
+    // Sat (6) -> SF
+    // Sun (0) -> FINAL
 
     setTournamentDay(jsDay);
 
-    if (jsDay === 5) setCurrentDayName("FASE DE GRUPOS (Día 1)");
-    else if (jsDay === 6) setCurrentDayName("FASE DE GRUPOS (Final)");
-    else if (jsDay === 0) setCurrentDayName("DIECISEISAVOS");
-    else if (jsDay === 1) setCurrentDayName("OCTAVOS DE FINAL");
-    else if (jsDay === 2) setCurrentDayName("CUARTOS DE FINAL");
-    else if (jsDay === 3) setCurrentDayName("SEMIFINALES");
-    else if (jsDay === 4) setCurrentDayName("GRAN FINAL");
+    if (jsDay === 1) setCurrentDayName("INSCRIPCIÓN");
+    else if (jsDay === 2) setCurrentDayName("FASE DE GRUPOS");
+    else if (jsDay === 3) setCurrentDayName("DIECISEISAVOS");
+    else if (jsDay === 4) setCurrentDayName("OCTAVOS DE FINAL");
+    else if (jsDay === 5) setCurrentDayName("CUARTOS DE FINAL");
+    else if (jsDay === 6) setCurrentDayName("SEMIFINALES");
+    else if (jsDay === 0) setCurrentDayName("GRAN FINAL");
 
     // Check Lockout Status
-    // If it is NOT Fri or Sat AND user has no group => Locked Out
-    const isGroupStage = jsDay === 5 || jsDay === 6;
-    if (!user.championsGroup && !isGroupStage) {
+    // If it is NOT Mon AND user has no group/opponent => Locked Out
+    if (jsDay !== 1 && !user.championsGroup && !user.championsOpponent) {
         setIsLockedOut(true);
     } else {
         setIsLockedOut(false);
@@ -264,7 +263,7 @@ const ChampionsLeague: React.FC<ChampionsLeagueProps> = ({ user, onPlay, onBack 
                 
                 {isLockedOut && (
                     <p className="text-xs text-center text-red-500 font-bold mt-2">
-                        No participaste en la Fase de Grupos (Viernes/Sábado). Podrás unirte en el próximo reinicio.
+                        No te inscribiste el Lunes. Podrás unirte en el próximo reinicio.
                     </p>
                 )}
             </div>

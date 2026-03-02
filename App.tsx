@@ -91,16 +91,16 @@ function App() {
 
   // --- DAILY / WEEKLY UPDATE LOGIC ---
   const checkDailyUpdate = () => {
-    const lastResetStr = localStorage.getItem('flagtoon_last_reset_v2');
+    const lastResetStr = localStorage.getItem('flagtoon_last_reset_v3');
     const todayStr = new Date().toDateString();
 
     if (lastResetStr && lastResetStr !== todayStr) {
         performDailyUpdate(lastResetStr);
-        localStorage.setItem('flagtoon_last_reset_v2', todayStr);
+        localStorage.setItem('flagtoon_last_reset_v3', todayStr);
     } else if (!lastResetStr) {
         // Force a reset on first load with the new key
         performDailyUpdate(new Date(Date.now() - 86400000).toDateString());
-        localStorage.setItem('flagtoon_last_reset_v2', todayStr);
+        localStorage.setItem('flagtoon_last_reset_v3', todayStr);
     }
   };
 
@@ -203,66 +203,8 @@ function App() {
         return pairs;
     };
 
-    if (jsDay === 2) { // TUESDAY: RESET & GROUPS START
-        const groups = ['A','B','C','D','E','F','G','H'];
-        const shuffledUsers = [...users].sort(() => Math.random() - 0.5);
-        
-        users = users.map(u => ({
-            ...u,
-            isChampionsEliminated: false,
-            championsRound: 'GROUP',
-            championsOpponent: undefined,
-            dailyChampionsTime: undefined
-        }));
-
-        shuffledUsers.forEach((u, i) => {
-            const targetUser = users.find(user => user.username === u.username);
-            if (targetUser) {
-                targetUser.championsGroup = groups[i % 8];
-            }
-        });
-
-    } else if (jsDay === 3) { // WEDNESDAY
-        // Groups continue, no reset needed
-    } else if (jsDay === 4) { // THURSDAY: R32
-        const groups = ['A','B','C','D','E','F','G','H'];
-        const qualifiers: string[] = [];
-
-        groups.forEach(g => {
-            const groupPlayers = users.filter(u => u.championsGroup === g);
-            groupPlayers.sort((a, b) => {
-                if (a.dailyChampionsTime === undefined && b.dailyChampionsTime === undefined) return 0;
-                if (a.dailyChampionsTime === undefined) return 1;
-                if (b.dailyChampionsTime === undefined) return -1;
-                return a.dailyChampionsTime! - b.dailyChampionsTime!;
-            });
-            const top4 = groupPlayers.slice(0, 4);
-            top4.forEach(p => qualifiers.push(p.username));
-        });
-
-        users.forEach(u => {
-            if (!qualifiers.includes(u.username)) {
-                u.isChampionsEliminated = true;
-                u.championsOpponent = undefined;
-            } else {
-                u.isChampionsEliminated = false;
-                u.championsRound = 'R32';
-                u.dailyChampionsTime = undefined;
-            }
-        });
-
-        const survivors = users.filter(u => !u.isChampionsEliminated);
-        const pairs = createMatchups(survivors);
-        
-        pairs.forEach(pair => {
-            const u1 = users.find(u => u.username === pair.p1);
-            const u2 = users.find(u => u.username === pair.p2);
-            if (u1) u1.championsOpponent = pair.p2;
-            if (u2) u2.championsOpponent = pair.p1;
-        });
-
-    } else if (jsDay === 5 || jsDay === 6 || jsDay === 0 || jsDay === 1) { // Fri, Sat, Sun, Mon
-        // Process previous round elimination
+    // Process previous round knockouts (R32 to FINAL)
+    if (jsDay === 4 || jsDay === 5 || jsDay === 6 || jsDay === 0 || jsDay === 1) { 
         const survivors = users.filter(u => !u.isChampionsEliminated && u.championsOpponent);
         const processedUsers = new Set<string>();
 
@@ -346,11 +288,77 @@ function App() {
         }
     }
 
+    if (jsDay === 1) { // MONDAY: REGISTRATION
+        users = users.map(u => ({
+            ...u,
+            isChampionsEliminated: false,
+            championsRound: 'REGISTRATION',
+            championsOpponent: undefined,
+            dailyChampionsTime: undefined,
+            championsGroup: undefined
+        }));
+    } else if (jsDay === 2) { // TUESDAY: GROUPS START
+        const groups = ['A','B','C','D','E','F','G','H'];
+        const registeredUsers = users.filter(u => u.dailyChampionsTime !== undefined);
+        
+        users = users.map(u => {
+            if (registeredUsers.find(ru => ru.username === u.username)) {
+                return { ...u, championsRound: 'GROUP', dailyChampionsTime: undefined, isChampionsEliminated: false };
+            } else {
+                return { ...u, isChampionsEliminated: true, championsRound: 'ELIMINATED', dailyChampionsTime: undefined };
+            }
+        });
+
+        const shuffledUsers = [...registeredUsers].sort(() => Math.random() - 0.5);
+        shuffledUsers.forEach((u, i) => {
+            const targetUser = users.find(user => user.username === u.username);
+            if (targetUser) {
+                targetUser.championsGroup = groups[i % 8];
+            }
+        });
+    } else if (jsDay === 3) { // WEDNESDAY: R32
+        const groups = ['A','B','C','D','E','F','G','H'];
+        const qualifiers: string[] = [];
+
+        groups.forEach(g => {
+            const groupPlayers = users.filter(u => u.championsGroup === g && !u.isChampionsEliminated);
+            groupPlayers.sort((a, b) => {
+                if (a.dailyChampionsTime === undefined && b.dailyChampionsTime === undefined) return 0;
+                if (a.dailyChampionsTime === undefined) return 1;
+                if (b.dailyChampionsTime === undefined) return -1;
+                return a.dailyChampionsTime! - b.dailyChampionsTime!;
+            });
+            const top4 = groupPlayers.slice(0, 4);
+            top4.forEach(p => qualifiers.push(p.username));
+        });
+
+        users.forEach(u => {
+            if (!qualifiers.includes(u.username)) {
+                u.isChampionsEliminated = true;
+                u.championsOpponent = undefined;
+            } else {
+                u.isChampionsEliminated = false;
+                u.championsRound = 'R32';
+                u.dailyChampionsTime = undefined;
+            }
+        });
+
+        const survivors = users.filter(u => !u.isChampionsEliminated);
+        const pairs = createMatchups(survivors);
+        
+        pairs.forEach(pair => {
+            const u1 = users.find(u => u.username === pair.p1);
+            const u2 = users.find(u => u.username === pair.p2);
+            if (u1) u1.championsOpponent = pair.p2;
+            if (u2) u2.championsOpponent = pair.p1;
+        });
+    }
+
 
     // ==========================
-    // 3. LEAGUE & WEEKLY RESET (NEW DAY: TUESDAY = 2)
+    // 3. LEAGUE & WEEKLY RESET (NEW DAY: MONDAY = 1)
     // ==========================
-    if (jsDay === 2) { 
+    if (jsDay === 1) { 
         // --- A. LEAGUE RESET ---
         const leagueSurvivors = users.filter(u => !u.isEliminated && u.dailyLeagueTime !== undefined);
         leagueSurvivors.sort((a, b) => a.dailyLeagueTime! - b.dailyLeagueTime!);
@@ -378,15 +386,15 @@ function App() {
         // ==========================
         let eliminationRate = 0.3; 
         // Logic for days:
-        // Day 1 (Tue): No elimination, just play.
-        // Day 2 (Wed): 30% elimination based on Tue results.
-        // Day 3 (Thu): 40% elimination based on Wed results.
-        // Day 4 (Fri): 50% elimination based on Thu results.
-        // Day 5 (Sat), Day 6 (Sun), Day 7 (Mon): 60% elimination.
+        // Day 1 (Mon): No elimination, just play.
+        // Day 2 (Tue): 30% elimination based on Mon results.
+        // Day 3 (Wed): 40% elimination based on Tue results.
+        // Day 4 (Thu): 50% elimination based on Wed results.
+        // Day 5 (Fri), Day 6 (Sat), Day 7 (Sun): 60% elimination.
         
-        if (jsDay === 4) eliminationRate = 0.4; // Thursday
-        else if (jsDay === 5) eliminationRate = 0.5; // Friday
-        else if (jsDay === 6 || jsDay === 0 || jsDay === 1) eliminationRate = 0.6; // Sat, Sun, Mon
+        if (jsDay === 3) eliminationRate = 0.4; // Wednesday
+        else if (jsDay === 4) eliminationRate = 0.5; // Thursday
+        else if (jsDay === 5 || jsDay === 6 || jsDay === 0) eliminationRate = 0.6; // Fri, Sat, Sun
 
         const pool = users.filter(u => !u.isEliminated);
         const playedPool = pool.filter(u => u.dailyLeagueTime !== undefined);
@@ -448,6 +456,17 @@ function App() {
     }
 
     localStorage.setItem('flagtoon_users', JSON.stringify(users));
+
+    // Also update flagtoon_currentUser if it exists
+    const savedUserStr = localStorage.getItem('flagtoon_currentUser');
+    if (savedUserStr) {
+        const savedUser = JSON.parse(savedUserStr);
+        const updatedUser = users.find(u => u.username === savedUser.username);
+        if (updatedUser) {
+            localStorage.setItem('flagtoon_currentUser', JSON.stringify(updatedUser));
+            setCurrentUser(updatedUser);
+        }
+    }
   };
 
   const handleLogin = (user: User) => {
@@ -480,11 +499,13 @@ function App() {
         }
     }
     
-    // SAFETY FAILSAFE: If it is League Day 1 (Tuesday), enforce NOT eliminated
+    // SAFETY FAILSAFE: If it is League Day 1 (Monday), enforce NOT eliminated
     // This fixes issues if the daily update sync missed or user is coming from an old state
     const now = new Date();
-    if (now.getDay() === 2) {
+    if (now.getDay() === 1) {
         safeUser.isEliminated = false;
+        safeUser.isChampionsEliminated = false;
+        safeUser.championsRound = 'REGISTRATION';
     }
 
     setCurrentUser(safeUser);
@@ -549,50 +570,15 @@ function App() {
         if (currentUser.isChampionsEliminated) return;
         if (currentUser.championsRound === 'WINNER') return;
         
-        // --- NEW STRICT JOIN LOGIC ---
         const now = new Date();
         const jsDay = now.getDay();
         
         // Logic: 
-        // Tuesday (2) & Wednesday (3) are Group Stage days. 
-        // If it's NOT Tue/Wed (Day > 3 or Day < 2) AND user has NO group, they cannot play/join.
-        const isGroupStage = jsDay === 2 || jsDay === 3;
-        
-        if (!currentUser.championsGroup) {
-            if (isGroupStage) {
-                 // Assign Group Logic (Allow joining)
-                 const groups = ['A','B','C','D','E','F','G','H'];
-                 const usersStr = localStorage.getItem('flagtoon_users');
-                 let users: User[] = usersStr ? JSON.parse(usersStr) : [];
-
-                 const groupCounts: Record<string, number> = {};
-                 groups.forEach(g => groupCounts[g] = 0);
-
-                 users.forEach(u => {
-                     if (u.championsGroup && groups.includes(u.championsGroup)) {
-                         groupCounts[u.championsGroup]++;
-                     }
-                 });
-
-                 let minCount = Infinity;
-                 groups.forEach(g => {
-                     if (groupCounts[g] < minCount) minCount = groupCounts[g];
-                 });
-
-                 const availableGroups = groups.filter(g => groupCounts[g] === minCount);
-                 const assignedGroup = availableGroups[Math.floor(Math.random() * availableGroups.length)];
-                 
-                 const idx = users.findIndex(u => u.username === currentUser.username);
-                 if (idx !== -1) {
-                     users[idx].championsGroup = assignedGroup;
-                     users[idx].championsRound = 'GROUP'; 
-                     localStorage.setItem('flagtoon_users', JSON.stringify(users));
-                 }
-
-                 const updated = { ...currentUser, championsGroup: assignedGroup, championsRound: 'GROUP' as ChampionsRound };
-                 setCurrentUser(updated);
-            } else {
-                // LOCK OUT: Missed the group stage window
+        // Monday (1) is Registration. Anyone not eliminated can play.
+        // Tuesday (2) to Sunday (0): Must have a group or an opponent to play.
+        if (jsDay !== 1) {
+            if (!currentUser.championsGroup && !currentUser.championsOpponent) {
+                // LOCK OUT: Missed registration
                 return;
             }
         }

@@ -40,11 +40,12 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         return;
       }
       
-      // Check if it's League Day 1 (Friday = 5)
-      // If registering late (Sat-Thu), user enters as eliminated for the current league week
+      // Check if it's League Day 1 (Monday = 1)
+      // If registering late (Tue-Sun), user enters as eliminated for the current league week
       const now = new Date();
       const day = now.getDay();
-      const isLeagueDay1 = day === 5;
+      const isLeagueDay1 = day === 1;
+      const isChampionsDay1 = day === 1;
 
       // Initialize new user with XP and Level
       const newUser: User = { 
@@ -55,7 +56,9 @@ const Auth: React.FC<AuthProps> = ({ onLogin }) => {
         level: 1,
         badges: [],
         leagueTier: 0,
-        isEliminated: !isLeagueDay1 // Auto-eliminate if missing the start of the week (Friday)
+        isEliminated: !isLeagueDay1, // Auto-eliminate if missing the start of the week (Monday)
+        isChampionsEliminated: !isChampionsDay1,
+        championsRound: isChampionsDay1 ? 'REGISTRATION' : 'ELIMINATED'
       };
       users.push(newUser);
       localStorage.setItem('flagtoon_users', JSON.stringify(users));

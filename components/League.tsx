@@ -24,19 +24,19 @@ const League: React.FC<LeagueProps> = ({ user, onPlayLeague, onBack, onViewProfi
 
   useEffect(() => {
     // Determine Current Week Day
-    // NEW SCHEDULE: Tuesday = Day 1
-    // JS: 2(Tue) -> 1
-    //     3(Wed) -> 2
-    //     4(Thu) -> 3
-    //     5(Fri) -> 4
-    //     6(Sat) -> 5
-    //     0(Sun) -> 6
-    //     1(Mon) -> 7
+    // NEW SCHEDULE: Monday = Day 1
+    // JS: 1(Mon) -> 1
+    //     2(Tue) -> 2
+    //     3(Wed) -> 3
+    //     4(Thu) -> 4
+    //     5(Fri) -> 5
+    //     6(Sat) -> 6
+    //     0(Sun) -> 7
     
     const now = new Date();
     const jsDay = now.getDay(); // Sun=0, Mon=1... Fri=5
     
-    let day = jsDay >= 2 ? jsDay - 1 : jsDay + 6;
+    let day = jsDay === 0 ? 7 : jsDay;
     setCurrentDay(day);
 
     // Update Timer every second
@@ -83,11 +83,11 @@ const League: React.FC<LeagueProps> = ({ user, onPlayLeague, onBack, onViewProfi
 
   // Logic to determine CUTOFF line based on day
   // Schedule: 
-  // Day 1 (Tue): No elimination
-  // Day 2 (Wed): 30% out
-  // Day 3 (Thu): 40% out
-  // Day 4 (Fri): 50% out
-  // Day 5-7 (Sat-Mon): 60% out
+  // Day 1 (Mon): No elimination
+  // Day 2 (Tue): 30% out
+  // Day 3 (Wed): 40% out
+  // Day 4 (Thu): 50% out
+  // Day 5-7 (Fri-Sun): 60% out
   
   const getEliminationPercentage = (day: number) => {
     if (day === 1) return 0.3; 
@@ -197,36 +197,36 @@ const League: React.FC<LeagueProps> = ({ user, onPlayLeague, onBack, onViewProfi
 
         <div className="flex-1 w-full overflow-y-auto scrollbar-hide pb-20 relative space-y-4">
              <div className="bg-white border-4 border-black rounded-xl p-4 cartoon-shadow-lg">
-                 <h3 className="font-black text-lg mb-2 text-black">📅 La Purga Semanal (Martes)</h3>
+                 <h3 className="font-black text-lg mb-2 text-black">📅 La Purga Semanal (Lunes)</h3>
                  <p className="text-sm text-black font-bold mb-2">
-                    La liga comienza cada Martes. La dificultad aumenta cada día.
+                    La liga comienza cada Lunes. La dificultad aumenta cada día.
                  </p>
                  <ul className="text-xs space-y-2 pl-2 text-gray-600 font-semibold">
                     <li className="flex justify-between border-b border-gray-100 pb-1">
-                        <span>Martes (Día 1)</span>
+                        <span>Lunes (Día 1)</span>
                         <span className="font-black text-green-600">30% Eliminado</span>
                     </li>
                     <li className="flex justify-between border-b border-gray-100 pb-1">
-                        <span>Miércoles (Día 2)</span>
+                        <span>Martes (Día 2)</span>
                         <span className="font-black text-yellow-600">40% Eliminado</span>
                     </li>
                     <li className="flex justify-between border-b border-gray-100 pb-1">
-                        <span>Jueves (Día 3)</span>
+                        <span>Miércoles (Día 3)</span>
                         <span className="font-black text-orange-500">50% Eliminado</span>
                     </li>
                     <li className="flex justify-between border-b border-gray-100 pb-1">
-                        <span>Vie-Dom (Días 4-6)</span>
+                        <span>Jue-Sáb (Días 4-6)</span>
                         <span className="font-black text-red-600">60% Eliminado</span>
                     </li>
                     <li className="flex justify-between pt-1">
-                        <span className="font-bold text-purple-600">Lunes (Final)</span>
+                        <span className="font-bold text-purple-600">Domingo (Final)</span>
                         <span className="font-black text-purple-600">¡Sólo 1 Ganador!</span>
                     </li>
                  </ul>
              </div>
 
              <div className="bg-yellow-100 border-2 border-yellow-400 rounded-xl p-3 text-xs font-bold text-yellow-800">
-                 ¡Si eres eliminado o no participas en el Día 1 (Martes), no podrás jugar hasta la próxima semana!
+                 ¡Si eres eliminado o no participas en el Día 1 (Lunes), no podrás jugar hasta la próxima semana!
              </div>
         </div>
     </div>
@@ -253,7 +253,7 @@ const League: React.FC<LeagueProps> = ({ user, onPlayLeague, onBack, onViewProfi
              <div className="bg-red-500 border-4 border-black rounded-3xl p-6 w-full cartoon-shadow-lg flex flex-col items-center text-center gap-4 text-white">
                 <Skull size={80} />
                 <h2 className="text-3xl font-black cartoon-text-shadow">¡ELIMINADO!</h2>
-                <p className="font-bold">No registraste tiempo el Día 1 o no superaste el corte. Vuelve el próximo Martes.</p>
+                <p className="font-bold">No registraste tiempo el Día 1 o no superaste el corte. Vuelve el próximo Lunes.</p>
                 <Button onClick={() => setView('STANDINGS')} variant="secondary" className="mt-4">
                     Ver Resultados
                 </Button>
