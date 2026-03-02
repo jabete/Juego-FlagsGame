@@ -109,45 +109,64 @@ const Profile: React.FC<ProfileProps> = ({ user, currentUser, onBack }) => {
     
     // 2. ELO BADGE LOGIC
     if (index === 2) {
-        // PRIORITY 1: Stored Badge (From Previous Season)
-        if (badgeId && badgeId.startsWith('ELO_RANK_')) {
-            const rank = parseInt(badgeId.replace('ELO_RANK_', ''), 10);
-            
-            let bgClass = "bg-orange-700 from-orange-600 to-orange-800 border-orange-500"; // Bronze (30+)
-            let textClass = "text-orange-100";
-            let iconColor = "text-orange-300";
+        const hasStoredBadge = badgeId && badgeId.startsWith('ELO_RANK_');
+        const hasLiveRank = currentEloRank !== null;
 
-            if (rank <= 10) { // Gold
-                bgClass = "bg-yellow-500 from-yellow-400 to-yellow-600 border-yellow-300";
-                textClass = "text-yellow-100";
-                iconColor = "text-white";
-            } else if (rank <= 29) { // Silver
-                bgClass = "bg-gray-400 from-gray-300 to-gray-500 border-gray-200";
-                textClass = "text-gray-100";
-                iconColor = "text-white";
-            }
-
+        if (hasStoredBadge || hasLiveRank) {
             return (
-                <div className={`relative flex flex-col items-center justify-center w-full h-full p-1 rounded-xl bg-gradient-to-br ${bgClass} border shadow-inner overflow-hidden`}>
-                    <div className="absolute inset-0 bg-white opacity-10"></div>
-                    <Swords size={26} className={`${iconColor} drop-shadow-md mb-1`} />
-                    <div className={`absolute bottom-1 ${rank <= 10 ? 'bg-yellow-800' : rank <= 29 ? 'bg-gray-800' : 'bg-orange-900'} text-white text-[8px] font-black px-1.5 rounded-full shadow-lg border border-white/20`}>
-                        #{rank}
+                <div className="relative flex flex-col w-full h-full rounded-xl overflow-hidden border-2 border-black/20 shadow-inner">
+                    
+                    {/* TOP HALF: Previous Season (Stored Badge) */}
+                    <div className={`flex-1 flex flex-col items-center justify-center relative ${hasStoredBadge ? '' : 'bg-gray-200'}`}>
+                        {hasStoredBadge ? (() => {
+                            const rank = parseInt(badgeId.replace('ELO_RANK_', ''), 10);
+                            let bgClass = "bg-orange-700 from-orange-600 to-orange-800"; 
+                            let iconColor = "text-orange-300";
+                            if (rank <= 10) {
+                                bgClass = "bg-yellow-500 from-yellow-400 to-yellow-600";
+                                iconColor = "text-white";
+                            } else if (rank <= 29) {
+                                bgClass = "bg-gray-400 from-gray-300 to-gray-500";
+                                iconColor = "text-white";
+                            }
+                            return (
+                                <div className={`absolute inset-0 bg-gradient-to-br ${bgClass} flex flex-col items-center justify-center`}>
+                                     <div className="absolute top-0.5 text-[6px] font-black text-white/70 uppercase tracking-widest">Anterior</div>
+                                     <div className="flex items-center gap-1 mt-2">
+                                        <Swords size={12} className={`${iconColor} drop-shadow-md`} />
+                                        <span className="text-white font-black text-sm drop-shadow-md">#{rank}</span>
+                                     </div>
+                                </div>
+                            );
+                        })() : (
+                            <div className="absolute inset-0 flex flex-col items-center justify-center opacity-40">
+                                <div className="text-[6px] font-black text-black/50 uppercase tracking-widest mb-1">Anterior</div>
+                                <span className="text-xs font-bold text-black/50">--</span>
+                            </div>
+                        )}
                     </div>
-                </div>
-            );
-        }
 
-        // PRIORITY 2: Live Rank (If no stored badge)
-        if (currentEloRank !== null) {
-            return (
-                <div className="relative flex flex-col items-center justify-center w-full h-full p-1 rounded-xl bg-purple-600 border border-purple-400 shadow-inner overflow-hidden group">
-                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.3)_10%,transparent_70%)] animate-pulse"></div>
-                    <div className="absolute top-1 text-[8px] font-black text-purple-200 tracking-widest opacity-80">LIVE</div>
-                    <div className="flex flex-col items-center justify-center z-10">
-                        <span className="text-3xl font-black text-white drop-shadow-md leading-none">#{currentEloRank}</span>
-                        <span className="text-[8px] font-bold text-purple-200 uppercase leading-none mt-1">Temporada</span>
+                    {/* DIVIDER */}
+                    <div className="h-[2px] w-full bg-black/30 z-10"></div>
+
+                    {/* BOTTOM HALF: Current Season (Live Rank) */}
+                    <div className={`flex-1 flex flex-col items-center justify-center relative ${hasLiveRank ? 'bg-purple-600' : 'bg-gray-200'}`}>
+                         {hasLiveRank ? (
+                             <div className="absolute inset-0 flex flex-col items-center justify-center">
+                                 <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(255,255,255,0.2)_10%,transparent_70%)] animate-pulse"></div>
+                                 <div className="flex items-center gap-1 mt-1 z-10">
+                                     <span className="text-white font-black text-sm drop-shadow-md">#{currentEloRank}</span>
+                                 </div>
+                                 <div className="absolute bottom-0.5 text-[6px] font-black text-purple-200 uppercase tracking-widest">Actual</div>
+                             </div>
+                         ) : (
+                             <div className="absolute inset-0 flex flex-col items-center justify-center opacity-40">
+                                <span className="text-xs font-bold text-black/50 mt-1">--</span>
+                                <div className="text-[6px] font-black text-black/50 uppercase tracking-widest mt-1">Actual</div>
+                             </div>
+                         )}
                     </div>
+
                 </div>
             );
         }
